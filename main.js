@@ -19,7 +19,6 @@ var cocos2dApp = cc.Application.extend({
         director.setDisplayStats(this.config['showFPS']);
         director.setAnimationInterval(1.0 / this.config['frameRate']);
         director.runWithScene(new this.startScene());
-
         return true;
     }
 });

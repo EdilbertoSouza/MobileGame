@@ -6,10 +6,12 @@
         showFPS:true,
         frameRate:60,
         tag:'gameCanvas', //the dom element to run cocos2d on
-        engineDir:'cocos2d/',
+        engineDir:'../cocos2d/cocos2d/',
         appFiles:['source/MobileGame.js',
-        'source/EventControl.js',
-        'source/CarControl.js']
+        'source/LaneControl.js',
+        'source/MyCarControl.js',
+        'source/CarControl.js',
+        'source/LabelControl.js']
     };
     window.addEventListener('DOMContentLoaded', function () {
         //first load engine file if specified
