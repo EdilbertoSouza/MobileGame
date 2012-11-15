@@ -5,7 +5,13 @@ var MobileGame = cc.LayerColor.extend({
 	car3:null,
 	car4:null,
 	car5:null,
-	lbl1:null,
+	time:0,
+	velocity:0,
+	distance:0,
+	lblTime:null,
+	lblVelocity:null,
+	lblDistance:null,
+	lblMsg:null,
     init:function(){
         this._super();
         this.initWithColor(new cc.Color4B(0,0,0,255));
@@ -21,65 +27,101 @@ var MobileGame = cc.LayerColor.extend({
         this.lane.scheduleUpdate();
         this.schedule(this.update);
 
-        this.mycar = new myCarControl();
+		//    ctor:function(posX, posY)
+        this.mycar = new myCarControl(370,070);
         this.addChild(this.mycar);
-        this.mycar.setPosition(new cc.Point(0,070));
         this.mycar.scheduleUpdate();
 
-        this.car2 = new carControl();
+		//    ctor:function(posX, posY, velocity, sentido)
+        this.car2 = new carControl(400,100,40,"Normal");
         this.addChild(this.car2);
-        this.car2.setPosition(new cc.Point(300,100));
-        this.car2.velocidade = 2;
-        this.car2.scheduleUpdate();
 
-        this.car3 = new carControl();
+        this.car3 = new carControl(300,300,40,"Normal");
         this.addChild(this.car3);
-        this.car3.setPosition(new cc.Point(300,300));
-        this.car3.velocidade = 2;
-        this.car3.scheduleUpdate();
 
-        this.car4 = new carControl();
+        this.car4 = new carControl(550,500,40,"Normal");
         this.addChild(this.car4);
-        this.car4.setPosition(new cc.Point(300,500));
-        this.car4.velocidade = 2;
-        this.car4.scheduleUpdate();
 
-        this.car5 = new carControl();
+        this.car5 = new carControl(230,-300,30,"Contrario");
         this.addChild(this.car5);
-        this.car5.setPosition(new cc.Point(220,-300));
-        this.car5.velocidade = 1;
-        this.car5.scheduleUpdate();
 
-        //this.lbl1 = new LabelAtlasTest();
-        //this.addChild(this.lbl1);
+        this.lblTime = cc.LabelTTF.create("", "Arial", 28);
+        this.addChild(this.lblTime);
+        this.lblTime.setPosition(cc.p(470, 340));
+
+        this.lblVelocity = cc.LabelTTF.create("0", "Arial", 28);
+        this.addChild(this.lblVelocity);
+        this.lblVelocity.setPosition(cc.p(470, 420));
+        this.lblVelocity.setColor(cc.blue());
+
+        this.lblDistance = cc.LabelTTF.create("", "Arial", 28);
+        this.addChild(this.lblDistance);
+        this.lblDistance.setPosition(cc.p(470, 380));
+
+        this.lblMsg = cc.LabelTTF.create("", "Arial", 14);
+        this.addChild(this.lblMsg);
+        this.lblMsg.setPosition(cc.p(100, 420));
+        this.lblMsg.setColor(cc.red());
 
         return true;
     },
     onEnter:function(){
         this._super();
     },
-	validatePosition:function() {
-		if(this.car2.getPosition().y < 000)	this.car2.setPosition(new cc.Point(this.car2.getPosition().x, 600));
-        if(this.car2.getPosition().y > 600) this.car2.setPosition(new cc.Point(this.car2.getPosition().x, 000));
-		if(this.car3.getPosition().y < 000)	this.car3.setPosition(new cc.Point(this.car3.getPosition().x, 600));
-        if(this.car3.getPosition().y > 600) this.car3.setPosition(new cc.Point(this.car3.getPosition().x, 000));
-		if(this.car4.getPosition().y < 000)	this.car4.setPosition(new cc.Point(this.car4.getPosition().x, 600));
-        if(this.car4.getPosition().y > 600) this.car4.setPosition(new cc.Point(this.car4.getPosition().x, 000));
-		if(this.car5.getPosition().y < -1300) this.car5.setPosition(new cc.Point(this.car5.getPosition().x, 600));
-        if(this.car5.getPosition().y > 600) this.car5.setPosition(new cc.Point(this.car5.getPosition().x, -1300));
-	},
+    onPause:function (sender) {
+        if (cc.Director.getInstance().isPaused()) {
+            cc.Director.getInstance().resume();
+        } else {
+            cc.Director.getInstance().pause();
+        }
+    },
     update:function(dt){
-		this.car2.setPosition(new cc.Point(this.car2.getPosition().x, this.car2.getPosition().y - this.lane.velocidade + this.car2.velocidade));
-		this.car3.setPosition(new cc.Point(this.car3.getPosition().x, this.car3.getPosition().y - this.lane.velocidade + this.car3.velocidade));
-		this.car4.setPosition(new cc.Point(this.car4.getPosition().x, this.car4.getPosition().y - this.lane.velocidade + this.car4.velocidade));
-		this.car5.setPosition(new cc.Point(this.car5.getPosition().x, this.car5.getPosition().y - this.lane.velocidade - this.car5.velocidade));
-		this.validatePosition();
+        this.car2.update(this.lane.velocity, this.mycar.getPosition().x, this.mycar.getPosition().y);
+        this.car2.setPosition(new cc.Point(this.car2.posX, this.car2.posY));
+        this.car3.update(this.lane.velocity, this.mycar.getPosition().x, this.mycar.getPosition().y);
+        this.car3.setPosition(new cc.Point(this.car3.posX, this.car3.posY));
+        this.car4.update(this.lane.velocity, this.mycar.getPosition().x, this.mycar.getPosition().y);
+        this.car4.setPosition(new cc.Point(this.car4.posX, this.car4.posY));
+        this.car5.update(this.lane.velocity, this.mycar.getPosition().x, this.mycar.getPosition().y);
+        this.car5.setPosition(new cc.Point(this.car5.posX, this.car5.posY));
+        this.time += dt;
+        this.velocity = this.lane.velocity * 10;
+		this.distance += this.velocity / 3.6 * dt;
+		this.showLabels();
+    },
+    showLabels:function(){
+    	// Show datas
+        this.lblTime.setString(Math.round(this.time) + " s");
+        this.lblVelocity.setString(Math.round(this.velocity) + " km/h");
+        this.lblDistance.setString(Math.round(this.distance) + " m");
+        // Show Messages
+        if(this.velocity <= 80) {
+        	this.lblMsg.setString("");
+            if(this.distance == 0 && this.time > 10) {
+            	this.lblMsg.setString("De partida no carro");
+            }
+            if(this.distance > 0 && this.velocity < 40) {
+            	this.lblMsg.setString("Acelera este carro");
+            }
+        } else {
+        	if(this.velocity > 80) {
+        		this.lblMsg.setString("Acima da velocidade");
+        	}
+        	if(this.velocity > 120) {
+        		this.lblMsg.setString("Altissima velocidade");
+        	}
+        }
     },
     onKeyUp:function(e){
+		this.mycar.handleKeyUp(e);
     },
     onKeyDown:function(e){
-        this.lane.handleKey(e);
-        this.mycar.handleKey(e);
+        this.lane.handleKeyDown(e);
+        this.mycar.handleKeyDown(e);
+        if(e === cc.KEY.p) {
+            this.onPause();
+  		}
+
     }
 });
 

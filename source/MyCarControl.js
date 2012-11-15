@@ -1,31 +1,22 @@
 var myCarControl = cc.Sprite.extend({
-    _currentPosition: 370,
-	_size: 600,
-	velocidade: 0,
-	_aceleracao: 0,
-    ctor:function(){
-        this.initWithFile("./images/carro.png");
+    _sideVelocity: 0,
+    ctor:function(posX, posY) {
+        this.initWithFile("./resource/images/myCar.png");
+        this.setPosition(new cc.Point(posX,posY));
     },
-    /*
-     V = S / T
-     S = V * T
-
-     A = V / T
-     V = A * T
-
-
-    */
-
-    update:function(dt){
-		this.setPosition(new cc.Point(this._currentPosition, this.getPosition().y));
+    update:function(dt) {
+		//this.setPosition(new cc.Point(this._currentPosition, this.getPosition().y));
+		this.setPosition( new cc.pAdd(this.getPosition(), cc.p(this._sideVelocity,0)));
     },
-    handleKey:function(e)
-    {
+    handleKeyUp:function(e) {
+		this._sideVelocity = 0;
+    },
+    handleKeyDown:function(e) {
         if(e === cc.KEY.left) {
-          	this._currentPosition = this._currentPosition - 10;
+          	this._sideVelocity = -2;
         }
         else if(e === cc.KEY.right) {
-          	this._currentPosition = this._currentPosition + 10;
+          	this._sideVelocity = 2;
         }
     },
 });
